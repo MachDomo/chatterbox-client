@@ -3,11 +3,11 @@
 // YOUR CODE HERE:
 
 // http://parse.hrr.hackreactor.com/chatterbox/classes/messages
-// var message = {
-//   username: "'<script>let x=document.getElementsByTagName('body');x[0].style.background='repeating-linear-gradient(45deg, pink 0%, pink 20%, yellow 0%, yellow 50%) 0 / 55px 55px';</script>'",
-//   text: "'<script>let x=document.getElementsByTagName('body');x[0].style.background='repeating-linear-gradient(45deg, pink 0%, pink 20%, yellow 0%, yellow 50%) 0 / 55px 55px';</script>'",
-//   roomname: "'<script>let x=document.getElementsByTagName('body');x[0].style.background='repeating-linear-gradient(45deg, pink 0%, pink 20%, yellow 0%, yellow 50%) 0 / 55px 55px';</script>'"
-// };
+var message = {
+  username: '',
+  text: '',
+  roomname: ''
+};
 let app = {
   data: {},
   server: 'http://parse.hrr.hackreactor.com/chatterbox/classes/messages',
