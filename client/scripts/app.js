@@ -4,15 +4,15 @@
 
 // http://parse.hrr.hackreactor.com/chatterbox/classes/messages
 
-
 let app = {
-  username: 'Phillip',
+  username: '',
   data: {},
   server: 'http://parse.hrr.hackreactor.com/chatterbox/classes/messages',
   messages: [],
   friends: {},
   roomnames: {},
   settings: {'order': '-createdAt'},
+  currentRoom: 'lobby',
 
   init: function() {
 
@@ -20,7 +20,6 @@ let app = {
     app.handleUsernameClick();
     app.handleSubmit();
     app.changeRooms();
-
     app.fetch();
 
     setInterval(app.fetch, 5000);
@@ -32,10 +31,11 @@ let app = {
       // This is the url you should use to communicate with the parse API server.
       url: app.server,
       type: 'POST',
-      data: message,
+      data: JSON.stringify(message),
       contentType: 'application/json',
       success: function (data) {
         console.log('chatterbox: Message sent');
+        app.fetch();
       },
       error: function (data) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -133,7 +133,6 @@ let app = {
 
   },
 
-
   handleUsernameClick: function() {
     $('#chats').on('click', '.username', function() {
       app.friends[$(this).text().slice(10)] = true;
@@ -143,7 +142,15 @@ let app = {
 
   handleSubmit: function() {
     $('.submit').on('click', function() {
+      event.preventDefault();
 
+      let messageObj = {
+        username: app.username,
+        text: $('.message').val(),
+        roomname: app.currentRoom,
+      };
+      console.log(messageObj);
+      app.send(messageObj);
     });
   },
 
@@ -151,10 +158,15 @@ let app = {
     $('body').on('change', 'select', function() {
       app.settings.where = {'roomname': this.value};
       app.fetch();
+      app.currentRoom = this.value;
     });
   },
 };
 
 $(document).ready(function() {
+  let username = window.location.search.split('&')[0].slice(10);
+  app.username = username;
   app.init();
+
+  $('input#hidden').val(app.username);
 });
