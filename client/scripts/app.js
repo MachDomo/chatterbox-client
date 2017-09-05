@@ -3,23 +3,23 @@
 // YOUR CODE HERE:
 
 // http://parse.hrr.hackreactor.com/chatterbox/classes/messages
-var message = {
-  username: '',
-  text: '',
-  roomname: ''
-};
+
+
 let app = {
+  username: 'Phillip',
   data: {},
   server: 'http://parse.hrr.hackreactor.com/chatterbox/classes/messages',
   messages: [],
   friends: {},
+  roomnames: {},
+  settings: {'order': '-createdAt'},
 
   init: function() {
 
     // Event Triggers
-    $('#chats').on('click', '.username', function() {
-      app.friends[$(this).text().slice(10)] = true;
-    });
+    app.handleUsernameClick();
+    app.handleSubmit();
+    app.changeRooms();
 
     app.fetch();
 
@@ -50,13 +50,15 @@ let app = {
       url: app.server,
       type: 'GET',
       contentType: 'application/json',
-      data: {'order': '-createdAt'},
+      data: app.settings,
 
       success: function (data) {
         console.log('chatterbox: Message recieved');
         console.log(data.results);
         app.data = data.results;
+
         app.renderMessages();
+        app.renderRoom();
 
         //   let newUser = `Username: ${username} `;
         //   let newMessage = `Message: ${data.results[i].text}`;
@@ -89,12 +91,17 @@ let app = {
 
     let newMessage = `Message: ${message.text}`;
     //let createdAt = `Time: ${message.createdAt.slice(11, 19)}`;
-
-    $('div#chats').append($('<div class="messages"></div>').text(newMessage));
+    newMessage = $('<div class="messages"></div>').text(newMessage).fadeIn(1500);
+    if (app.friends.hasOwnProperty(message.username)) {
+      // make it bold and blue
+      newMessage.css('font-weight', 'bold');
+    }
+    $('div#chats').append(newMessage);
     //$('div#chats').append($('<div class="time"></div>').text(createdAt));
   },
 
   renderMessages: function() {
+    app.clearMessages();
     for (let i = 0; i < 11; i++) {
       app.renderUser(app.data[i]);
       app.renderMessage(app.data[i]);
@@ -116,61 +123,38 @@ let app = {
 
 
 
-  renderRoom: function(roomName) {
-    $('#roomSelect').append($('<option></option>').text(roomName));
+  renderRoom: function() {
+    for (let i = 0; i < app.data.length; i++) {
+      if (!(app.roomnames.hasOwnProperty(app.data[i].roomname))) {
+        app.roomnames[app.data[i].roomname] = true;
+        $('#roomSelect').append($('<option></option>').val(app.data[i].roomname).html(app.data[i].roomname));
+      }
+    }
+
   },
 
 
+  handleUsernameClick: function() {
+    $('#chats').on('click', '.username', function() {
+      app.friends[$(this).text().slice(10)] = true;
+      app.renderMessages();
+    });
+  },
+
+  handleSubmit: function() {
+    $('.submit').on('click', function() {
+
+    });
+  },
+
+  changeRooms: function() {
+    $('body').on('change', 'select', function() {
+      app.settings.where = {'roomname': this.value};
+      app.fetch();
+    });
+  },
 };
 
-
-
-
-
-
-
-// let changeRooms = function(room) {
-//   ajaxObj.data.where = {'roomname': room};
-//   $.ajax(ajaxObj);
-// };
-
-
-
-
-// let populateRooms = {
-//   // This is the url you should use to communicate with the parse API server.
-//   url: 'http://parse.hrr.hackreactor.com/chatterbox/classes/messages',
-//   type: 'GET',
-//   contentType: 'application/json',
-//   data: {'order': '-createdAt'},
-
-//   success: function (data) {
-//     let bucket = [];
-//     for (let i = 0; i < data.results.length; i++) {
-//       if (bucket.indexOf(data.results[i].roomname) === -1) {
-//         bucket.push(data.results[i].roomname);
-//       }
-//     }
-
-//     $.each(bucket, function(i, p) {
-//       //p = document.createTextNode(p);
-//       $('.rooms').append($('<option></option').text(p));
-//     });
-//   },
-//   error: function (data) {
-//     // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
-//     console.error('chatterbox: Failed to recieve message', data);
-//   }
-// };
-
-// $.ajax(populateRooms);
-
-
-// // document.createTextNode(string);
-
-// $(document).ready(function(){
-//   $('.rooms').on('change', function(){
-//     $('div#chats').text('');
-//     changeRooms(this.value)
-//   });
-// });
+$(document).ready(function() {
+  app.init();
+});
