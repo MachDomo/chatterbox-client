@@ -100,13 +100,16 @@ form input[type=text] {
   border-radius: 10px;
   padding: 10px;
   margin-top: 10px;
+
 }
 
 .submit {
-  border: 2px solid white;
-  border-radius: 10px;
-  padding: 15px;
+  border: 1px solid #46bc99;
+  border-radius: 5px;
+  padding: 10px;
   margin-top: 10px;
+  color: #46bc99;
+  background-color:rgba(70, 188, 153, 0.05);
 }
 
 .username {
@@ -117,12 +120,13 @@ form input[type=text] {
   margin-left: 150px;
   margin-right: 150px;
   left: 0;
+  word-wrap: break-word;
 
 }
 
 .messages {
   color: blue;
-
+  word-wrap: break-word;
 }
 
 .roomSelect {

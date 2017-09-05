@@ -54,20 +54,14 @@ let app = {
 
       success: function (data) {
         console.log('chatterbox: Message recieved');
-        console.log(data.results);
-        app.data = data.results;
+        if (app.messages[0] !== data.results[0].objectId) {
+          app.data = data.results;
+          app.renderMessages();
+          app.renderRoom();
+        } else {
+          console.log('Nothing new to report!');
+        }
 
-        app.renderMessages();
-        app.renderRoom();
-
-        //   let newUser = `Username: ${username} `;
-        //   let newMessage = `Message: ${data.results[i].text}`;
-        //
-        //   // Note: sanitize usernames
-        //   $('div#chats').append($('<div class="usernames"></div>').text(newUser));
-        //   $('div#chats').append($('<div class="messages"></div>').text(newMessage));
-        //
-        // }
       },
       error: function (data) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -81,14 +75,6 @@ let app = {
   },
 
   renderMessage: function(message) {
-    // var message = {
-    // username: 'Mel Brooks',
-    // text: 'Never underestimate the power of the Schwartz!',
-    // roomname: 'lobby'
-    // let username;
-
-
-
     let newMessage = `Message: ${message.text}`;
     //let createdAt = `Time: ${message.createdAt.slice(11, 19)}`;
     newMessage = $('<div class="messages"></div>').text(newMessage).fadeIn(1500);
@@ -97,11 +83,11 @@ let app = {
       newMessage.css('font-weight', 'bold');
     }
     $('div#chats').append(newMessage);
-    //$('div#chats').append($('<div class="time"></div>').text(createdAt));
   },
 
   renderMessages: function() {
     app.clearMessages();
+    app.messages[0] = app.data[0].objectId;
     for (let i = 0; i < 11; i++) {
       app.renderUser(app.data[i]);
       app.renderMessage(app.data[i]);
@@ -126,6 +112,7 @@ let app = {
   renderRoom: function() {
     for (let i = 0; i < app.data.length; i++) {
       if (!(app.roomnames.hasOwnProperty(app.data[i].roomname))) {
+
         app.roomnames[app.data[i].roomname] = true;
         $('#roomSelect').append($('<option></option>').val(app.data[i].roomname).html(app.data[i].roomname));
       }
@@ -161,6 +148,26 @@ let app = {
       app.currentRoom = this.value;
     });
   },
+
+  put: function(message, objectId) {
+    $.ajax({
+      // This is the url you should use to communicate with the parse API server.
+      url: app.server + '/' + objectId,
+      type: 'PUT',
+      data: JSON.stringify(message),
+      contentType: 'application/json',
+      success: function (data) {
+        console.log('chatterbox: Message sent');
+
+      },
+      error: function (data) {
+        // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
+        console.error('chatterbox: Failed to send message', data);
+        console.log(app.server + '/' + objectId);
+      }
+    });
+
+  }
 };
 
 $(document).ready(function() {
@@ -169,4 +176,5 @@ $(document).ready(function() {
   app.init();
 
   $('input#hidden').val(app.username);
+
 });
